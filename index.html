@@ -114,7 +114,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 .add-btn{width:100%;border:2px dashed var(--primary);background:transparent;color:var(--primary);padding:10px;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:12px;transition:.3s;}
 .add-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
 
-/* EXPENSES - WRAP TEXT */
+/* EXPENSES - RUPEE SYMBOL */
 .exp-header{display:grid;grid-template-columns:2fr 1fr 1fr 30px;gap:8px;font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding-bottom:10px;border-bottom:2px solid var(--border);}
 .exp-row{display:grid;grid-template-columns:2fr 1fr 1fr 30px;gap:8px;padding:8px 0;border-bottom:1px dotted var(--border);align-items:center;}
 .exp-row input{padding:6px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;outline:none;width:100%;font-family:inherit;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
@@ -310,15 +310,16 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
         </div>
       </div>
       
+      <!-- EXPENSE TRACKER WITH RUPEE SYMBOL -->
       <div class="section" style="margin-top:20px;">
         <div class="s-title red">💰 Expense Tracker</div>
-        <div class="exp-header"><span>Item</span><span>Credit (+)</span><span>Debit (−)</span><span></span></div>
+        <div class="exp-header"><span>Item</span><span>Credit (+) ₹</span><span>Debit (−) ₹</span><span></span></div>
         <div id="expList"></div>
         <button class="add-btn" onclick="addExpense()">+ Add Transaction</button>
         <div class="exp-totals">
-          <div class="exp-total-item"><small>Total Credit</small><span class="credit-val" id="totCredit">0.00</span></div>
-          <div class="exp-total-item"><small>Total Debit</small><span class="debit-val" id="totDebit">0.00</span></div>
-          <div class="exp-total-item"><small>Net Balance</small><span class="net-val" id="totNet">0.00</span></div>
+          <div class="exp-total-item"><small>Total Credit</small><span class="credit-val">₹<span id="totCredit">0.00</span></span></div>
+          <div class="exp-total-item"><small>Total Debit</small><span class="debit-val">₹<span id="totDebit">0.00</span></span></div>
+          <div class="exp-total-item"><small>Net Balance</small><span class="net-val">₹<span id="totNet">0.00</span></span></div>
         </div>
       </div>
     </div>
@@ -604,11 +605,11 @@ function addAppt(text=''){
   if(!text)inp.focus();
 }
 
-// ─── EXPENSES ───
+// ─── EXPENSES WITH RUPEE SYMBOL ───
 function addExpense(name='',cr='',db=''){
   const c=document.getElementById('expList');
   const row=document.createElement('div');row.className='exp-row';
-  row.innerHTML=`<input type="text" placeholder="Item..." value="${name}"><input type="number" placeholder="0" step="0.01" min="0" value="${cr}"><input type="number" placeholder="0" step="0.01" min="0" value="${db}"><button class="del-btn" style="background:none;border:none;cursor:pointer;font-size:.85rem;">✕</button>`;
+  row.innerHTML=`<input type="text" placeholder="Item..." value="${name}"><input type="number" placeholder="₹0" step="0.01" min="0" value="${cr}"><input type="number" placeholder="₹0" step="0.01" min="0" value="${db}"><button class="del-btn" style="background:none;border:none;cursor:pointer;font-size:.85rem;">✕</button>`;
   row.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{calcExpenses();debounceSave();}));
   row.querySelector('button').addEventListener('click',()=>{row.remove();calcExpenses();debounceSave();});
   c.appendChild(row);
