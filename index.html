@@ -1,470 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Planner App</title>
-    <style>
-        :root {
-            --bg-color: #e0f2f7;
-            --paper-color: #ffffff;
-            --border-color: #d1d1d1;
-            --accent-color: #4a90e2;
-            --text-color: #333;
-            --secondary-text: #666;
-            --highlight-color: #fdf6e3;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Daily Planner</title>
+<style>
+:root {
+  --primary: #6366f1;
+  --secondary: #ec4899;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text: #1e293b;
+  --muted: #64748b;
+  --glass: rgba(255,255,255,0.97);
+  --border: #e2e8f0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172a;color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+/* ANIMATED BG */
+.bg-anim{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(45deg,#0f172a,#1e1b4b,#312e81,#1e1b4b);background-size:400% 400%;animation:bgShift 18s ease infinite;}
+@keyframes bgShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;pointer-events:none;}
+.particle{position:absolute;border-radius:50%;animation:rise linear infinite;opacity:0;}
+@keyframes rise{0%{transform:translateY(100vh) scale(0) rotate(0deg);opacity:0;}10%{opacity:0.6;}90%{opacity:0.3;}100%{transform:translateY(-10vh) scale(1.5) rotate(720deg);opacity:0;}}
+.particle:nth-child(odd){background:rgba(99,102,241,0.15);}
+.particle:nth-child(even){background:rgba(236,72,153,0.1);}
 
-        .planner-container {
-            background-color: var(--paper-color);
-            width: 100%;
-            max-width: 1000px;
-            min-height: 90vh;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            position: relative;
-        }
+/* WRAPPER */
+.wrap{position:relative;z-index:1;max-width:1140px;margin:30px auto;padding:10px;}
 
-        @media (max-width: 850px) {
-            .planner-container {
-                grid-template-columns: 1fr;
-            }
-        }
+/* HEADER */
+.header{background:var(--glass);border-radius:20px;padding:30px;margin-bottom:20px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;position:relative;}
+.h-title{font-size:2.8rem;font-weight:900;letter-spacing:-1px;color:#334155;}
+.h-date{font-size:1.96rem;font-weight:800;color:var(--primary);margin-top:5px;}
+.h-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:15px;flex-wrap:wrap;}
+.nav-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:1rem;cursor:pointer;transition:.3s;box-shadow:0 4px 12px rgba(99,102,241,0.4);}
+.nav-btn:hover{transform:scale(1.15);background:#4f46e5;}
+.today-btn{border-radius:20px;width:auto;padding:0 16px;font-weight:700;font-size:.8rem;background:var(--success);}
+.today-btn:hover{background:#059669;}
+.h-actions{display:flex;gap:10px;margin-top:15px;justify-content:center;flex-wrap:wrap;}
+.action-btn{border:none;padding:10px 20px;border-radius:25px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,0.15);display:flex;align-items:center;gap:6px;}
+.action-btn:hover{transform:translateY(-2px);}
+.btn-save{background:var(--success);color:#fff;}
+.btn-dir{background:var(--primary);color:#fff;}
+.btn-clear{background:var(--danger);color:#fff;}
+.btn-print{background:#64748b;color:#fff;}
+.save-status{font-size:.8rem;color:var(--success);font-weight:700;margin-top:8px;min-height:20px;}
 
-        .header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-bottom: 2px solid var(--text-color);
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:800px){.grid{grid-template-columns:1fr;}.wrap{padding:8px;margin:10px auto;}.header{padding:20px;}.h-title{font-size:1.8rem;}.h-date{font-size:1.26rem;}.section{padding:18px;}}
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+/* SECTIONS */
+.section{background:var(--glass);border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid var(--border);text-align:justify;}
+.section+.section{margin-top:20px;}
+.s-title{font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--muted);border-left:4px solid var(--primary);padding-left:12px;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.s-title.pink{border-color:var(--secondary);}
+.s-title.amber{border-color:var(--accent);}
+.s-title.green{border-color:var(--success);}
+.s-title.red{border-color:var(--danger);}
 
-        .date-section {
-            display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
-        }
+/* SCHEDULE */
+.sched-wrap{max-height:520px;overflow-y:auto;scrollbar-width:thin;}
+.sched-wrap::-webkit-scrollbar{width:5px;}
+.sched-wrap::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:10px;}
+.time-row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px dotted var(--border);}
+.time-row:hover{background:#f8fafc;border-radius:8px;}
+.time-lbl{min-width:65px;font-weight:800;font-size:.78rem;color:var(--primary);}
+.time-in{flex:1;border:none;border-bottom:1px solid var(--border);padding:6px 4px;font-size:.88rem;outline:none;background:transparent;transition:.3s;font-family:inherit;}
+.time-in:focus{border-color:var(--primary);background:#f8fafc;}
 
-        .day-circles {
-            display: flex;
-            gap: 5px;
-        }
+/* MEALS */
+.meals-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;}
+.meal-card{text-align:center;}
+.meal-label{font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;color:var(--secondary);}
+.meal-in{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:.88rem;outline:none;transition:.3s;font-family:inherit;text-align:center;}
+.meal-in:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(236,72,153,0.1);}
 
-        .day-circle {
-            width: 25px;
-            height: 25px;
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: 0.2s;
-        }
+/* TODO / APPTS */
+.list-area .item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dotted var(--border);}
+.item-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;}
+.item-row input[type=text]{flex:1;border:none;border-bottom:1px solid var(--border);padding:6px;font-size:.9rem;outline:none;background:transparent;font-family:inherit;transition:.3s;}
+.item-row input[type=text]:focus{border-color:var(--primary);}
+.item-row .del-btn{background:none;border:none;cursor:pointer;font-size:.85rem;opacity:0;transition:.3s;}
+.item-row:hover .del-btn{opacity:1;}
+.done-text{text-decoration:line-through;color:#94a3b8!important;}
+.add-btn{width:100%;border:2px dashed var(--primary);background:transparent;color:var(--primary);padding:10px;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:12px;transition:.3s;}
+.add-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
 
-        .day-circle.active {
-            background-color: var(--text-color);
-            color: white;
-        }
+/* EXPENSES */
+.exp-header{display:grid;grid-template-columns:2fr 1fr 1fr 30px;gap:8px;font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding-bottom:10px;border-bottom:2px solid var(--border);}
+.exp-row{display:grid;grid-template-columns:2fr 1fr 1fr 30px;gap:8px;padding:8px 0;border-bottom:1px dotted var(--border);align-items:center;}
+.exp-row input{padding:6px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;outline:none;width:100%;font-family:inherit;}
+.exp-row input:focus{border-color:var(--primary);}
+.exp-row .del-btn{opacity:.5;}
+.exp-row:hover .del-btn{opacity:1;}
+.exp-totals{display:flex;justify-content:space-around;margin-top:15px;padding-top:12px;border-top:2px solid var(--border);flex-wrap:wrap;gap:10px;}
+.exp-total-item{text-align:center;font-weight:800;font-size:.9rem;}
+.exp-total-item small{display:block;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.credit-val{color:var(--success);}
+.debit-val{color:var(--danger);}
+.net-val{color:var(--primary);}
 
-        h2 {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            background: #f0f0f0;
-            padding: 4px 8px;
-            margin-top: 0;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent-color);
-        }
+/* RATINGS */
+.rating-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dotted var(--border);}
+.rating-row:last-child{border:none;}
+.rating-label{font-weight:600;font-size:.9rem;}
+.stars-wrap{display:flex;gap:4px;}
+.star{font-size:1.5rem;cursor:pointer;color:#cbd5e1;transition:.2s;user-select:none;}
+.star.lit{color:var(--accent);text-shadow:0 0 8px rgba(245,158,11,0.4);transform:scale(1.1);}
 
-        .section {
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 4px;
-        }
+/* HEALTH */
+.health-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dotted var(--border);}
+.health-row:last-child{border:none;}
+.health-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--success);}
+.health-row b{font-size:.9rem;}
+.health-time{width:90px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;outline:none;opacity:.4;transition:.3s;}
+.health-time.visible{opacity:1;}
 
-        .row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 6px;
-        }
+/* MODAL */
+.modal-overlay{display:none;position:fixed;z-index:9999;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);justify-content:center;align-items:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px;max-width:650px;width:95%;max-height:85vh;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:modalIn .3s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(30px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:20px 25px;display:flex;justify-content:space-between;align-items:center;}
+.modal-header h2{font-size:1.2rem;font-weight:800;}
+.modal-close{background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;opacity:.8;transition:.3s;}
+.modal-close:hover{opacity:1;transform:rotate(90deg);}
+.modal-body{padding:20px 25px;overflow-y:auto;max-height:calc(85vh - 130px);}
 
-        input[type="checkbox"] {
-            margin-right: 10px;
-            cursor: pointer;
-        }
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:20px;background:#f1f5f9;border-radius:12px;padding:4px;}
+.tab{flex:1;padding:10px;text-align:center;font-weight:700;font-size:.82rem;cursor:pointer;border-radius:10px;transition:.3s;color:var(--muted);}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,0.3);}
+.tab:hover:not(.active){background:#e2e8f0;}
 
-        input[type="text"], textarea {
-            border: none;
-            border-bottom: 1px solid #eee;
-            width: 100%;
-            padding: 4px;
-            font-family: inherit;
-            outline: none;
-            background: transparent;
-        }
+/* DIRECTORY ITEMS */
+.dir-search{width:100%;padding:12px;border:2px solid var(--border);border-radius:12px;font-size:.95rem;outline:none;margin-bottom:15px;font-family:inherit;}
+.dir-search:focus{border-color:var(--primary);}
+.dir-group{margin-bottom:15px;}
+.dir-group-title{font-weight:800;font-size:.85rem;color:var(--primary);padding:8px 12px;background:#f1f5f9;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.dir-group-title:hover{background:#e0e7ff;}
+.dir-entry{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);border-radius:8px;margin-bottom:4px;transition:.3s;cursor:pointer;}
+.dir-entry:hover{background:#faf5ff;transform:translateX(5px);}
+.dir-entry-date{font-weight:700;font-size:.9rem;}
+.dir-entry-preview{font-size:.75rem;color:var(--muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dir-entry-actions{display:flex;gap:6px;}
+.dir-btn-sm{border:none;padding:6px 12px;border-radius:15px;font-size:.75rem;font-weight:700;cursor:pointer;transition:.3s;}
+.dir-btn-sm:hover{transform:scale(1.05);}
+.dir-load{background:var(--primary);color:#fff;}
+.dir-del{background:var(--danger);color:#fff;}
+.no-data{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
 
-        input[type="text"]:focus, textarea:focus {
-            border-bottom-color: var(--accent-color);
-        }
+/* CONFIRM DIALOG */
+.confirm-overlay{display:none;position:fixed;z-index:99999;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
+.confirm-overlay.open{display:flex;}
+.confirm-box{background:#fff;border-radius:16px;padding:30px;max-width:400px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.3);}
+.confirm-box p{margin-bottom:20px;font-size:1rem;font-weight:600;}
+.confirm-btns{display:flex;gap:10px;justify-content:center;}
+.confirm-btns button{padding:10px 25px;border-radius:20px;border:none;font-weight:700;cursor:pointer;transition:.3s;}
+.confirm-btns .yes{background:var(--danger);color:#fff;}
+.confirm-btns .no{background:#e2e8f0;color:#333;}
 
-        .meal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-        }
-
-        .meal-box {
-            text-align: center;
-        }
-
-        .meal-box label {
-            font-size: 0.7rem;
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .water-tracker {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
-
-        .glass {
-            cursor: pointer;
-            opacity: 0.3;
-            transition: 0.2s;
-        }
-
-        .glass.filled {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .expense-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .expense-table th {
-            text-align: left;
-            font-size: 0.7rem;
-            padding-bottom: 5px;
-        }
-
-        .expense-table input {
-            font-size: 0.8rem;
-        }
-
-        .ratings {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .rating-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stars, .faces, .hearts {
-            display: flex;
-            gap: 5px;
-            cursor: pointer;
-        }
-
-        .icon-btn {
-            opacity: 0.3;
-            transition: 0.2s;
-        }
-
-        .icon-btn.selected {
-            opacity: 1;
-        }
-
-        .footer-controls {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            gap: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn-print { background-color: #eee; color: #333; }
-        .btn-clear { background-color: #ff8a8a; color: white; }
-
-        @media print {
-            .footer-controls { display: none; }
-            body { background: white; padding: 0; }
-            .planner-container { box-shadow: none; border: 1px solid #eee; }
-        }
-    </style>
+@media print{.bg-anim,.particles,.h-actions,.h-nav,.add-btn,.del-btn,.controls,.nav-btn,.action-btn{display:none!important;}body{background:#fff;}.wrap{margin:0;padding:0;}.header,.section{box-shadow:none;border:1px solid #eee;}}
+</style>
 </head>
 <body>
 
-    <div class="planner-container">
-        <!-- Header -->
-        <header class="header">
-            <h1>Daily Planner</h1>
-            <div class="date-section">
-                <div class="day-circles" id="dayCircles">
-                    <div class="day-circle" onclick="toggleActive(this)">M</div>
-                    <div class="day-circle" onclick="toggleActive(this)">T</div>
-                    <div class="day-circle" onclick="toggleActive(this)">W</div>
-                    <div class="day-circle" onclick="toggleActive(this)">T</div>
-                    <div class="day-circle" onclick="toggleActive(this)">F</div>
-                    <div class="day-circle" onclick="toggleActive(this)">S</div>
-                    <div class="day-circle" onclick="toggleActive(this)">S</div>
-                </div>
-                <input type="text" placeholder="Date: __/__/____" style="width: 100px;">
-            </div>
-        </header>
+<div class="bg-anim"></div>
+<div class="particles" id="particles"></div>
 
-        <!-- Left Column -->
-        <div class="col-left">
-            <section class="section">
-                <h2>Top Priorities</h2>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 1"></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 2"></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 3"></div>
-            </section>
+<div class="wrap">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="h-title">DAILY PLANNER</div>
+    <div class="h-date" id="headerDate"></div>
+    <div class="h-nav">
+      <button class="nav-btn" onclick="changeDate(-1)" title="Previous Day">◀</button>
+      <input type="date" id="datePicker" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;font-family:inherit;cursor:pointer;">
+      <button class="nav-btn" onclick="changeDate(1)" title="Next Day">▶</button>
+      <button class="nav-btn today-btn" onclick="goToday()">TODAY</button>
+    </div>
+    <div class="h-actions">
+      <button class="action-btn btn-save" onclick="manualSave()">💾 Save Plan</button>
+      <button class="action-btn btn-dir" onclick="openDirectory()">📁 Directory</button>
+      <button class="action-btn btn-clear" onclick="confirmClear()">🗑️ Clear Day</button>
+      <button class="action-btn btn-print" onclick="window.print()">🖨️ Print</button>
+    </div>
+    <div class="save-status" id="saveStatus"></div>
+  </div>
 
-            <section class="section">
-                <h2>Calls / Emails</h2>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
-            </section>
-
-            <section class="section">
-                <h2>Personal To-Do List</h2>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
-            </section>
-
-            <section class="section">
-                <h2>Health & Fitness</h2>
-                <textarea rows="4" placeholder="Exercise, steps, vitamins..."></textarea>
-            </section>
-
-            <section class="section">
-                <h2>Meal Planning</h2>
-                <div class="meal-grid">
-                    <div class="meal-box">
-                        <label>Breakfast</label>
-                        <input type="text" placeholder="...">
-                    </div>
-                    <div class="meal-box">
-                        <label>Lunch</label>
-                        <input type="text" placeholder="...">
-                    </div>
-                    <div class="meal-box">
-                        <label>Dinner</label>
-                        <input type="text" placeholder="...">
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <h2>Water Tracker</h2>
-                <div class="water-tracker" id="waterTracker">
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                    <span class="glass" onclick="toggleWater(this)">💧</span>
-                </div>
-            </section>
+  <!-- MAIN GRID -->
+  <div class="grid">
+    <!-- LEFT COL -->
+    <div>
+      <div class="section">
+        <div class="s-title">⏰ Daily Schedule</div>
+        <div class="sched-wrap" id="scheduleBox"></div>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title pink">🍲 Meals</div>
+        <div class="meals-grid">
+          <div class="meal-card"><div class="meal-label">🌅 Breakfast</div><input class="meal-in" id="mealB" placeholder="Menu..."></div>
+          <div class="meal-card"><div class="meal-label">☀️ Lunch</div><input class="meal-in" id="mealL" placeholder="Menu..."></div>
+          <div class="meal-card"><div class="meal-label">🌙 Dinner</div><input class="meal-in" id="mealD" placeholder="Menu..."></div>
         </div>
-
-        <!-- Right Column -->
-        <div class="col-right">
-            <section class="section">
-                <h2>To-Do List</h2>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
-            </section>
-
-            <section class="section">
-                <h2>Daily Schedule</h2>
-                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">08:00</span> <input type="text"></div>
-                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">10:00</span> <input type="text"></div>
-                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">12:00</span> <input type="text"></div>
-                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">14:00</span> <input type="text"></div>
-                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">16:00</span> <input type="text"></div>
-            </section>
-
-            <section class="section">
-                <h2>Expense Tracker</h2>
-                <table class="expense-table">
-                    <tr><th>Item</th><th style="width: 80px;">Amount</th></tr>
-                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
-                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
-                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
-                    <tr><td style="text-align: right; font-weight: bold;">Total:</td><td><input type="text"></td></tr>
-                </table>
-            </section>
-
-            <section class="section">
-                <h2>Notes</h2>
-                <textarea rows="6" placeholder="Ideas, reminders, reflections..."></textarea>
-            </section>
-
-            <section class="section">
-                <h2>Rate Your Day</h2>
-                <div class="ratings">
-                    <div class="rating-item">
-                        <span>Productivity:</span>
-                        <div class="stars" id="ratingProductivity">
-                            <span class="icon-btn" onclick="rate(this)">⭐</span>
-                            <span class="icon-btn" onclick="rate(this)">⭐</span>
-                            <span class="icon-btn" onclick="rate(this)">⭐</span>
-                            <span class="icon-btn" onclick="rate(this)">⭐</span>
-                            <span class="icon-btn" onclick="rate(this)">⭐</span>
-                        </div>
-                    </div>
-                    <div class="rating-item">
-                        <span>Mood:</span>
-                        <div class="faces" id="ratingMood">
-                            <span class="icon-btn" onclick="rate(this, true)">😢</span>
-                            <span class="icon-btn" onclick="rate(this, true)">😐</span>
-                            <span class="icon-btn" onclick="rate(this, true)">🙂</span>
-                            <span class="icon-btn" onclick="rate(this, true)">😊</span>
-                            <span class="icon-btn" onclick="rate(this, true)">🤩</span>
-                        </div>
-                    </div>
-                    <div class="rating-item">
-                        <span>Health:</span>
-                        <div class="hearts" id="ratingHealth">
-                            <span class="icon-btn" onclick="rate(this)">❤️</span>
-                            <span class="icon-btn" onclick="rate(this)">❤️</span>
-                            <span class="icon-btn" onclick="rate(this)">❤️</span>
-                            <span class="icon-btn" onclick="rate(this)">❤️</span>
-                            <span class="icon-btn" onclick="rate(this)">❤️</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title red">💰 Expense Tracker</div>
+        <div class="exp-header"><span>Item</span><span>Credit (+)</span><span>Debit (−)</span><span></span></div>
+        <div id="expList"></div>
+        <button class="add-btn" onclick="addExpense()">+ Add Transaction</button>
+        <div class="exp-totals">
+          <div class="exp-total-item"><small>Total Credit</small><span class="credit-val" id="totCredit">0.00</span></div>
+          <div class="exp-total-item"><small>Total Debit</small><span class="debit-val" id="totDebit">0.00</span></div>
+          <div class="exp-total-item"><small>Net Balance</small><span class="net-val" id="totNet">0.00</span></div>
         </div>
-
-        <div class="footer-controls">
-            <button class="btn-print" onclick="window.print()">Print / Save PDF</button>
-            <button class="btn-clear" onclick="clearAll()">Clear All</button>
-        </div>
+      </div>
     </div>
 
-    <script>
-        function toggleActive(el) {
-            el.classList.toggle('active');
-        }
+    <!-- RIGHT COL -->
+    <div>
+      <div class="section">
+        <div class="s-title">💼 Work To-Do</div>
+        <div class="list-area" id="workList"></div>
+        <button class="add-btn" onclick="addTask('workList','Work task...')">+ Add Task</button>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title pink">🏠 Personal To-Do</div>
+        <div class="list-area" id="persList"></div>
+        <button class="add-btn" onclick="addTask('persList','Personal task...')">+ Add Task</button>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title amber">📅 Appointments</div>
+        <div class="list-area" id="apptList"></div>
+        <button class="add-btn" onclick="addAppt()">+ Add Appointment</button>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title" style="border-color:var(--accent);">⭐ Rate Your Day</div>
+        <div class="rating-row"><span class="rating-label">📊 Productivity</span><div class="stars-wrap" id="starProd"></div></div>
+        <div class="rating-row"><span class="rating-label">😊 Mood</span><div class="stars-wrap" id="starMood"></div></div>
+        <div class="rating-row"><span class="rating-label">💪 Health</span><div class="stars-wrap" id="starHealth"></div></div>
+      </div>
+      <div class="section" style="margin-top:20px;background:#f0fdf4;">
+        <div class="s-title green">🌿 Health & Fitness</div>
+        <div class="health-row">
+          <input type="checkbox" id="exCheck"><b>Morning Exercise</b>
+          <input type="time" class="health-time" id="exTime">
+        </div>
+        <div class="health-row">
+          <input type="checkbox" id="medCheck"><b>Meditation / Pranayama</b>
+          <input type="time" class="health-time" id="medTime">
+        </div>
+      </div>
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title">📝 Notes</div>
+        <textarea id="notesTa" style="width:100%;min-height:80px;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;font-size:.9rem;outline:none;resize:vertical;" placeholder="Daily notes..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
 
-        function toggleWater(el) {
-            el.classList.toggle('filled');
-        }
+<!-- DIRECTORY MODAL -->
+<div class="modal-overlay" id="dirOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📁 Plan Directory</h2>
+      <button class="modal-close" onclick="closeDirectory()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" data-view="day" onclick="switchTab(this,'day')">📆 Day</div>
+        <div class="tab" data-view="week" onclick="switchTab(this,'week')">📅 Week</div>
+        <div class="tab" data-view="month" onclick="switchTab(this,'month')">🗓️ Month</div>
+        <div class="tab" data-view="year" onclick="switchTab(this,'year')">📊 Year</div>
+      </div>
+      <input type="text" class="dir-search" id="dirSearch" placeholder="🔍 Search saved plans..." oninput="renderDirectory()">
+      <div id="dirContent"></div>
+    </div>
+  </div>
+</div>
 
-        function rate(el, singleSelect = false) {
-            const parent = el.parentElement;
-            const children = Array.from(parent.children);
-            const index = children.indexOf(el);
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg">Are you sure?</p>
+    <div class="confirm-btns">
+      <button class="yes" id="confirmYes">Yes</button>
+      <button class="no" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
 
-            if (singleSelect) {
-                children.forEach(child => child.classList.remove('selected'));
-                el.classList.add('selected');
-            } else {
-                // Star/Heart behavior: fill up to the clicked one
-                children.forEach((child, i) => {
-                    if (i <= index) {
-                        child.classList.add('selected');
-                    } else {
-                        child.classList.remove('selected');
-                    }
-                });
-            }
-        }
+<script>
+// ─── PARTICLES ───
+const pc=document.getElementById('particles');
+for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*120+40;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-delay:${Math.random()*20}s;animation-duration:${Math.random()*12+16}s;`;pc.appendChild(p);}
 
-        function clearAll() {
-            if (confirm("Are you sure you want to clear your daily plan?")) {
-                // Clear inputs
-                document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
-                document.querySelectorAll('textarea').forEach(area => area.value = '');
-                document.querySelectorAll('input[type="checkbox"]').forEach(check => check.checked = false);
-                
-                // Reset visuals
-                document.querySelectorAll('.day-circle').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.glass').forEach(el => el.classList.remove('filled'));
-                document.querySelectorAll('.icon-btn').forEach(el => el.classList.remove('selected'));
-            }
-        }
+// ─── DATE STATE ───
+let currentDate=new Date();
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-        // Set default day based on today
-        window.onload = () => {
-            const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-            const todayIndex = new Date().getDay();
-            const dayCircles = document.querySelectorAll('.day-circle');
-            
-            // Note: the circles start at M (index 1 in standard, but we'll just match roughly)
-            // Adjusting index to match: M=0, T=1, W=2, T=3, F=4, S=5, Sun=6
-            let adjustedIndex = todayIndex - 1;
-            if (adjustedIndex === -1) adjustedIndex = 6;
-            
-            if(dayCircles[adjustedIndex]) {
-                dayCircles[adjustedIndex].classList.add('active');
-            }
+function dateKey(d){return `plan_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function fmtDate(d){return `${String(d.getDate()).padStart(2,'0')}-${MONS[d.getMonth()]}-${d.getFullYear()}`;}
+function fmtFull(d){return `${DAYS[d.getDay()]}, ${fmtDate(d)}`;}
+function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 
-            const today = new Date().toLocaleDateString();
-            document.querySelector('input[placeholder="Date: __/__/____"]').value = today;
-        };
-    </script>
+function setDateUI(){
+  document.getElementById('headerDate').textContent=fmtDate(currentDate);
+  document.getElementById('datePicker').value=isoDate(currentDate);
+}
+
+document.getElementById('datePicker').addEventListener('change',function(){
+  currentDate=new Date(this.value+'T12:00:00');
+  loadDay();
+});
+
+function changeDate(offset){currentDate.setDate(currentDate.getDate()+offset);loadDay();}
+function goToday(){currentDate=new Date();loadDay();}
+
+// ─── SCHEDULE BUILDER ───
+function buildSchedule(){
+  const box=document.getElementById('scheduleBox');
+  box.innerHTML='';
+  for(let i=4;i<=23;i++){
+    const h=i>12?i-12:i===0?12:i;
+    const ap=i>=12?'PM':'AM';
+    const row=document.createElement('div');row.className='time-row';
+    row.innerHTML=`<span class="time-lbl">${String(h).padStart(2,'0')} ${ap}</span><input type="text" class="time-in" placeholder="—" data-idx="${i}">`;
+    row.querySelector('input').addEventListener('input',debounceSave);
+    box.appendChild(row);
+  }
+}
+buildSchedule();
+
+// ─── TASKS ───
+function addTask(listId,ph,text='',done=false){
+  const c=document.getElementById(listId);
+  const row=document.createElement('div');row.className='item-row';
+  const cb=document.createElement('input');cb.type='checkbox';cb.checked=done;
+  const inp=document.createElement('input');inp.type='text';inp.placeholder=ph||'Task...';inp.value=text;
+  if(done)inp.classList.add('done-text');
+  cb.addEventListener('change',()=>{inp.classList.toggle('done-text',cb.checked);debounceSave();});
+  inp.addEventListener('input',debounceSave);
+  const del=document.createElement('button');del.className='del-btn';del.textContent='✕';
+  del.addEventListener('click',()=>{row.remove();debounceSave();});
+  row.append(cb,inp,del);c.appendChild(row);
+  if(!text)inp.focus();
+}
+
+// ─── APPOINTMENTS ───
+function addAppt(text=''){
+  const c=document.getElementById('apptList');
+  const row=document.createElement('div');row.className='item-row';
+  const inp=document.createElement('input');inp.type='text';inp.placeholder='Appointment...';inp.value=text;
+  inp.addEventListener('input',debounceSave);
+  const del=document.createElement('button');del.className='del-btn';del.textContent='✕';
+  del.addEventListener('click',()=>{row.remove();debounceSave();});
+  row.append(inp,del);c.appendChild(row);
+  if(!text)inp.focus();
+}
+
+// ─── EXPENSES ───
+function addExpense(name='',cr='',db=''){
+  const c=document.getElementById('expList');
+  const row=document.createElement('div');row.className='exp-row';
+  row.innerHTML=`<input type="text" placeholder="Item..." value="${name}"><input type="number" placeholder="0" step="0.01" min="0" value="${cr}"><input type="number" placeholder="0" step="0.01" min="0" value="${db}"><button class="del-btn" style="background:none;border:none;cursor:pointer;font-size:.85rem;">✕</button>`;
+  row.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{calcExpenses();debounceSave();}));
+  row.querySelector('button').addEventListener('click',()=>{row.remove();calcExpenses();debounceSave();});
+  c.appendChild(row);
+  if(!name)row.querySelector('input').focus();
+}
+
+function calcExpenses(){
+  let cr=0,db=0;
+  document.querySelectorAll('.exp-row').forEach(r=>{
+    const inputs=r.querySelectorAll('input[type=number]');
+    cr+=parseFloat(inputs[0].value)||0;
+    db+=parseFloat(inputs[1].value)||0;
+  });
+  document.getElementById('totCredit').textContent=cr.toFixed(2);
+  document.getElementById('totDebit').textContent=db.toFixed(2);
+  document.getElementById('totNet').textContent=(cr-db).toFixed(2);
+}
+
+// ─── STARS ───
+function buildStars(containerId){
+  const c=document.getElementById(containerId);c.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('span');s.className='star';s.textContent='★';s.dataset.v=i;
+    s.addEventListener('click',()=>{
+      c.querySelectorAll('.star').forEach((st,idx)=>st.classList.toggle('lit',idx<i));
+      c.dataset.rating=i;debounceSave();
+    });
+    s.addEventListener('mouseenter',()=>{c.querySelectorAll('.star').forEach((st,idx)=>st.classList.toggle('lit',idx<i));});
+    s.addEventListener('mouseleave',()=>{const r=parseInt(c.dataset.rating)||0;c.querySelectorAll('.star').forEach((st,idx)=>st.classList.toggle('lit',idx<r));});
+    c.appendChild(s);
+  }
+  c.dataset.rating=0;
+}
+['starProd','starMood','starHealth'].forEach(buildStars);
+
+function setStars(id,val){
+  const c=document.getElementById(id);c.dataset.rating=val;
+  c.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<val));
+}
+
+// ─── HEALTH TOGGLES ───
+['exCheck','medCheck'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',function(){
+    const timeEl=document.getElementById(id==='exCheck'?'exTime':'medTime');
+    timeEl.classList.toggle('visible',this.checked);debounceSave();
+  });
+});
+['exTime','medTime'].forEach(id=>document.getElementById(id).addEventListener('input',debounceSave));
+['mealB','mealL','mealD','notesTa'].forEach(id=>document.getElementById(id).addEventListener('input',debounceSave));
+
+// ─── SAVE / LOAD ───
+let saveTimer;
+function debounceSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveDay,600);}
+
+function gatherData(){
+  return {
+    schedule:Array.from(document.querySelectorAll('.time-in')).map(i=>i.value),
+    workTasks:Array.from(document.querySelectorAll('#workList .item-row')).map(r=>({text:r.querySelector('input[type=text]').value,done:r.querySelector('input[type=checkbox]').checked})),
+    persTasks:Array.from(document.querySelectorAll('#persList .item-row')).map(r=>({text:r.querySelector('input[type=text]').value,done:r.querySelector('input[type=checkbox]').checked})),
+    appts:Array.from(document.querySelectorAll('#apptList .item-row')).map(r=>r.querySelector('input[type=text]').value),
+    meals:{b:document.getElementById('mealB').value,l:document.getElementById('mealL').value,d:document.getElementById('mealD').value},
+    expenses:Array.from(document.querySelectorAll('.exp-row')).map(r=>{const ins=r.querySelectorAll('input');return{name:ins[0].value,cr:ins[1].value,db:ins[2].value};}),
+    ratings:{prod:parseInt(document.getElementById('starProd').dataset.rating)||0,mood:parseInt(document.getElementById('starMood').dataset.rating)||0,health:parseInt(document.getElementById('starHealth').dataset.rating)||0},
+    health:{exCheck:document.getElementById('exCheck').checked,exTime:document.getElementById('exTime').value,medCheck:document.getElementById('medCheck').checked,medTime:document.getElementById('medTime').value},
+    notes:document.getElementById('notesTa').value,
+    savedAt:new Date().toISOString()
+  };
+}
+
+function saveDay(){
+  const key=dateKey(currentDate);
+  const data=gatherData();
+  try{localStorage.setItem(key,JSON.stringify(data));}catch(e){}
+  const st=document.getElementById('saveStatus');
+  st.textContent='✅ Saved at '+new Date().toLocaleTimeString();
+  setTimeout(()=>st.textContent='',3000);
+}
+
+function manualSave(){saveDay();}
+
+function loadDay(){
+  setDateUI();clearForm();
+  const key=dateKey(currentDate);
+  let raw;try{raw=localStorage.getItem(key);}catch(e){}
+  if(!raw){initDefaults();return;}
+  const d=JSON.parse(raw);
+  if(d.schedule)d.schedule.forEach((v,i)=>{const el=document.querySelectorAll('.time-in')[i];if(el)el.value=v;});
+  document.getElementById('workList').innerHTML='';
+  (d.workTasks||[]).forEach(t=>addTask('workList','Work task...',t.text,t.done));
+  document.getElementById('persList').innerHTML='';
+  (d.persTasks||[]).forEach(t=>addTask('persList','Personal task...',t.text,t.done));
+  document.getElementById('apptList').innerHTML='';
+  (d.appts||[]).forEach(t=>addAppt(t));
+  document.getElementById('mealB').value=d.meals?.b||'';
+  document.getElementById('mealL').value=d.meals?.l||'';
+  document.getElementById('mealD').value=d.meals?.d||'';
+  document.getElementById('expList').innerHTML='';
+  (d.expenses||[]).forEach(e=>addExpense(e.name,e.cr,e.db));calcExpenses();
+  setStars('starProd',d.ratings?.prod||0);setStars('starMood',d.ratings?.mood||0);setStars('starHealth',d.ratings?.health||0);
+  document.getElementById('exCheck').checked=d.health?.exCheck||false;
+  document.getElementById('exTime').value=d.health?.exTime||'';
+  document.getElementById('exTime').classList.toggle('visible',d.health?.exCheck||false);
+  document.getElementById('medCheck').checked=d.health?.medCheck||false;
+  document.getElementById('medTime').value=d.health?.medTime||'';
+  document.getElementById('medTime').classList.toggle('visible',d.health?.medCheck||false);
+  document.getElementById('notesTa').value=d.notes||'';
+}
+
+function clearForm(){
+  document.querySelectorAll('.time-in').forEach(i=>i.value='');
+  ['workList','persList','apptList','expList'].forEach(id=>document.getElementById(id).innerHTML='');
+  ['mealB','mealL','mealD'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('notesTa').value='';
+  ['starProd','starMood','starHealth'].forEach(id=>setStars(id,0));
+  document.getElementById('exCheck').checked=false;document.getElementById('exTime').value='';document.getElementById('exTime').classList.remove('visible');
+  document.getElementById('medCheck').checked=false;document.getElementById('medTime').value='';document.getElementById('medTime').classList.remove('visible');
+  document.getElementById('totCredit').textContent='0.00';document.getElementById('totDebit').textContent='0.00';document.getElementById('totNet').textContent='0.00';
+}
+
+function initDefaults(){
+  addTask('workList','Work task...');addTask('workList','Work task...');
+  addTask('persList','Personal task...');addTask('persList','Personal task...');
+  addAppt();
+}
+
+// ─── CLEAR CONFIRM ───
+function confirmClear(){
+  document.getElementById('confirmMsg').textContent='Clear all data for '+fmtDate(currentDate)+'?';
+  document.getElementById('confirmOverlay').classList.add('open');
+  document.getElementById('confirmYes').onclick=()=>{
+    try{localStorage.removeItem(dateKey(currentDate));}catch(e){}
+    clearForm();initDefaults();closeConfirm();
+    document.getElementById('saveStatus').textContent='🗑️ Day cleared';
+    setTimeout(()=>document.getElementById('saveStatus').textContent='',2000);
+  };
+}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
+
+// ─── DIRECTORY ───
+let dirView='day';
+function openDirectory(){document.getElementById('dirOverlay').classList.add('open');renderDirectory();}
+function closeDirectory(){document.getElementById('dirOverlay').classList.remove('open');}
+document.getElementById('dirOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDirectory();});
+
+function switchTab(el,view){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');dirView=view;renderDirectory();
+}
+
+function getSavedKeys(){
+  const keys=[];
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('plan_'))keys.push(k);}}catch(e){}
+  return keys.sort().reverse();
+}
+
+function keyToDate(k){return new Date(k.replace('plan_','')+'T12:00:00');}
+
+function getWeekNum(d){const t=new Date(d.getFullYear(),0,1);const dn=(d-t)/86400000;return Math.ceil((dn+t.getDay()+1)/7);}
+
+function getPreview(k){
+  let raw;try{raw=localStorage.getItem(k);}catch(e){}
+  if(!raw)return'';
+  const d=JSON.parse(raw);
+  const tasks=[...(d.workTasks||[]),...(d.persTasks||[])].filter(t=>t.text).map(t=>t.text).slice(0,3).join(', ');
+  return tasks||'No tasks';
+}
+
+function renderDirectory(){
+  const cont=document.getElementById('dirContent');
+  const filter=(document.getElementById('dirSearch').value||'').toLowerCase();
+  let keys=getSavedKeys();
+  if(filter)keys=keys.filter(k=>{const d=keyToDate(k);const label=fmtFull(d).toLowerCase();const preview=getPreview(k).toLowerCase();return label.includes(filter)||preview.includes(filter);});
+  if(!keys.length){cont.innerHTML='<div class="no-data">📭 No saved plans found</div>';return;}
+
+  let html='';
+  if(dirView==='day'){
+    keys.forEach(k=>{const d=keyToDate(k);html+=entryHTML(k,d);});
+  } else if(dirView==='week'){
+    const groups={};
+    keys.forEach(k=>{const d=keyToDate(k);const w=`Week ${getWeekNum(d)}, ${d.getFullYear()}`;(groups[w]=groups[w]||[]).push(k);});
+    for(const g in groups){html+=`<div class="dir-group"><div class="dir-group-title">${g}<span>${groups[g].length} day(s)</span></div>`;groups[g].forEach(k=>html+=entryHTML(k,keyToDate(k)));html+=`</div>`;}
+  } else if(dirView==='month'){
+    const groups={};
+    keys.forEach(k=>{const d=keyToDate(k);const m=`${MONTHS[d.getMonth()]} ${d.getFullYear()}`;(groups[m]=groups[m]||[]).push(k);});
+    for(const g in groups){html+=`<div class="dir-group"><div class="dir-group-title">${g}<span>${groups[g].length} day(s)</span></div>`;groups[g].forEach(k=>html+=entryHTML(k,keyToDate(k)));html+=`</div>`;}
+  } else {
+    const groups={};
+    keys.forEach(k=>{const d=keyToDate(k);const y=`${d.getFullYear()}`;(groups[y]=groups[y]||[]).push(k);});
+    for(const g in groups){html+=`<div class="dir-group"><div class="dir-group-title">${g}<span>${groups[g].length} day(s)</span></div>`;groups[g].forEach(k=>html+=entryHTML(k,keyToDate(k)));html+=`</div>`;}
+  }
+  cont.innerHTML=html;
+}
+
+function entryHTML(k,d){
+  return `<div class="dir-entry">
+    <div><div class="dir-entry-date">${fmtFull(d)}</div><div class="dir-entry-preview">${getPreview(k)}</div></div>
+    <div class="dir-entry-actions">
+      <button class="dir-btn-sm dir-load" onclick="loadFromDir('${k}')">📂 Open</button>
+      <button class="dir-btn-sm dir-del" onclick="deleteFromDir('${k}')">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function loadFromDir(k){
+  currentDate=keyToDate(k);loadDay();closeDirectory();
+}
+
+function deleteFromDir(k){
+  const d=keyToDate(k);
+  document.getElementById('confirmMsg').textContent='Delete plan for '+fmtDate(d)+'?';
+  document.getElementById('confirmOverlay').classList.add('open');
+  document.getElementById('confirmYes').onclick=()=>{
+    try{localStorage.removeItem(k);}catch(e){}
+    closeConfirm();renderDirectory();
+    if(dateKey(currentDate)===k){clearForm();initDefaults();}
+  };
+}
+
+// ─── INIT ───
+loadDay();
+</script>
 </body>
 </html>
