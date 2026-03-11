@@ -20,25 +20,35 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172a;color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-/* ANIMATED BG */
+/* ANIMATED BG WITH EMOJIS */
 .bg-anim{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(45deg,#0f172a,#1e1b4b,#312e81,#1e1b4b);background-size:400% 400%;animation:bgShift 18s ease infinite;}
 @keyframes bgShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
 .particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;pointer-events:none;}
-.particle{position:absolute;border-radius:50%;animation:rise linear infinite;opacity:0;}
-@keyframes rise{0%{transform:translateY(100vh) scale(0) rotate(0deg);opacity:0;}10%{opacity:0.6;}90%{opacity:0.3;}100%{transform:translateY(-10vh) scale(1.5) rotate(720deg);opacity:0;}}
-.particle:nth-child(odd){background:rgba(99,102,241,0.15);}
-.particle:nth-child(even){background:rgba(236,72,153,0.1);}
+.emoji-particle{position:absolute;font-size:2rem;animation:float linear infinite;opacity:0.6;text-shadow:0 0 10px rgba(255,255,255,0.3);}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:0.8;}90%{opacity:0.4;}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
 
 /* WRAPPER */
 .wrap{position:relative;z-index:1;max-width:1200px;margin:30px auto;padding:10px;}
 
-/* HEADER */
-.header{background:var(--glass);border-radius:20px;padding:30px;margin-bottom:20px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;position:relative;}
-.h-title{font-size:2.8rem;font-weight:900;letter-spacing:-1px;color:#334155;}
-.h-date{font-size:1.96rem;font-weight:800;color:var(--primary);margin-top:5px;}
+/* COLLAPSIBLE HEADER */
+.header{background:var(--glass);border-radius:20px;padding:30px;margin-bottom:20px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;position:relative;transition:all .3s ease;}
+.header-content{overflow:hidden;transition:all .3s ease;}
+.header.collapsed{padding:20px 30px;}
+.header.collapsed .header-content{max-height:0;opacity:0;margin:0;padding:0;}
+.header:not(.collapsed) .header-content{max-height:500px;opacity:1;}
 
-/* USER SELECTOR WITH EDIT */
-.user-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:15px;padding:15px;background:rgba(99,102,241,0.1);border-radius:12px;margin-top:15px;flex-wrap:wrap;}
+.h-title{font-size:2.8rem;font-weight:900;letter-spacing:-1px;color:#334155;transition:.3s;}
+.h-date{font-size:1.96rem;font-weight:800;color:var(--primary);margin-top:5px;transition:.3s;}
+.header.collapsed .h-title{font-size:2rem;}
+.header.collapsed .h-date{font-size:1.2rem;margin-top:0;}
+
+/* TOGGLE BUTTON */
+.header-toggle{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);width:40px;height:30px;background:var(--glass);border:2px solid var(--border);border-radius:0 0 20px 20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--primary);transition:.3s;z-index:10;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.header-toggle:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.header.collapsed .header-toggle{transform:translateX(-50%) rotate(180deg);border-radius:20px 20px 0 0;bottom:auto;top:-15px;}
+
+/* USER BAR */
+.user-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin:15px 0;padding:15px;background:rgba(99,102,241,0.1);border-radius:12px;flex-wrap:wrap;}
 .user-label{font-weight:700;font-size:.9rem;color:var(--muted);}
 .user-select{padding:10px 20px;border:2px solid var(--primary);border-radius:25px;font-size:.95rem;font-family:inherit;cursor:pointer;background:#fff;color:var(--primary);font-weight:700;outline:none;min-width:150px;}
 .user-select:focus{box-shadow:0 0 0 3px rgba(99,102,241,0.2);}
@@ -83,14 +93,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 .time-in{flex:1;border:none;border-bottom:1px solid var(--border);padding:6px 4px;font-size:.88rem;outline:none;background:transparent;transition:.3s;font-family:inherit;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;resize:vertical;min-height:32px;line-height:1.4;}
 .time-in:focus{border-color:var(--primary);background:#f8fafc;}
 
-/* MEALS - BIG TEXT BOXES */
-.meals-grid{display:grid;grid-template-columns:1fr;gap:20px;}
-.meal-card{background:#fff;border-radius:12px;padding:20px;border:2px solid var(--border);transition:.3s;}
+/* MEALS - REDUCED SIZE BY 30% */
+.meals-grid{display:grid;grid-template-columns:1fr;gap:15px;}
+.meal-card{background:#fff;border-radius:12px;padding:15px;border:2px solid var(--border);transition:.3s;}
 .meal-card:hover{border-color:var(--secondary);box-shadow:0 8px 25px rgba(236,72,153,0.1);}
-.meal-label{font-weight:800;font-size:.9rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;color:var(--secondary);display:flex;align-items:center;gap:8px;}
+.meal-label{font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;color:var(--secondary);display:flex;align-items:center;gap:8px;}
 .meal-label::before{content:"🍽️";font-size:1.1rem;}
-.meal-in{width:100%;padding:15px;border:2px solid var(--border);border-radius:12px;font-size:1rem;outline:none;transition:.3s;font-family:inherit;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;resize:vertical;min-height:120px;line-height:1.6;background:#fafafa;}
-.meal-in:focus{border-color:var(--secondary);box-shadow:0 0 0 4px rgba(236,72,153,0.1);background:#fff;}
+.meal-in{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:.95rem;outline:none;transition:.3s;font-family:inherit;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;resize:vertical;min-height:85px;line-height:1.5;background:#fafafa;}
+.meal-in:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(236,72,153,0.1);background:#fff;}
 .meal-in::placeholder{color:#cbd5e1;font-style:italic;}
 
 /* TODO / APPTS - WRAP TEXT */
@@ -157,7 +167,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 .user-edit-item input{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;}
 .user-edit-item input:focus{border-color:var(--primary);}
 
-/* DIRECTORY STYLES - SCREENSHOT LIKE */
+/* DIRECTORY STYLES */
 .dir-controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
 .dir-search{flex:1;min-width:200px;padding:12px 20px;border:2px solid var(--border);border-radius:25px;font-size:.95rem;outline:none;font-family:inherit;transition:.3s;}
 .dir-search:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
@@ -202,18 +212,6 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 .dir-card-btn.del{background:#fee2e2;color:var(--danger);}
 .dir-card-btn.del:hover{background:var(--danger);color:#fff;}
 
-.dir-list-item{display:flex;align-items:center;justify-content:space-between;padding:15px;background:#f8fafc;border-radius:12px;margin-bottom:10px;border:2px solid transparent;transition:.3s;cursor:pointer;}
-.dir-list-item:hover{border-color:var(--primary);background:#fff;}
-.dir-list-info{display:flex;align-items:center;gap:15px;}
-.dir-list-icon{width:45px;height:45px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;}
-.dir-list-details{flex:1;}
-.dir-list-date{font-weight:800;font-size:1rem;color:var(--text);}
-.dir-list-meta{font-size:.8rem;color:var(--muted);margin-top:2px;}
-.dir-list-actions{display:flex;gap:8px;}
-.dir-list-btn{padding:8px 16px;border-radius:8px;border:none;font-size:.8rem;font-weight:700;cursor:pointer;transition:.3s;}
-.dir-list-btn.open{background:var(--primary);color:#fff;}
-.dir-list-btn.del{background:#fee2e2;color:var(--danger);}
-
 .no-data{text-align:center;padding:40px;color:var(--muted);font-size:1rem;}
 .no-data-icon{font-size:3rem;margin-bottom:10px;}
 
@@ -229,13 +227,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 
 /* PRINT STYLES */
 @media print{
-  .bg-anim,.particles,.h-actions,.h-nav,.add-btn,.del-btn,.controls,.nav-btn,.action-btn,.user-bar{display:none!important;}
+  .bg-anim,.particles,.h-actions,.h-nav,.add-btn,.del-btn,.controls,.nav-btn,.action-btn,.user-bar,.header-toggle{display:none!important;}
   body{background:#fff;color:#000;}
   .wrap{margin:0;padding:0;}
   .header,.section{box-shadow:none;border:1px solid #ccc;background:#fff;}
   .time-in,.meal-in,.item-row textarea,.notes-area,.exp-row input{white-space:pre-wrap!important;word-wrap:break-word!important;overflow-wrap:break-word!important;height:auto!important;min-height:auto!important;border:1px solid #ddd!important;background:#fff!important;}
   .sched-wrap{max-height:none!important;overflow:visible!important;}
-  .meal-in{min-height:80px!important;}
+  .meal-in{min-height:60px!important;}
 }
 </style>
 </head>
@@ -245,38 +243,43 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 <div class="particles" id="particles"></div>
 
 <div class="wrap">
-  <!-- HEADER -->
-  <div class="header">
+  <!-- COLLAPSIBLE HEADER -->
+  <div class="header" id="mainHeader">
     <div class="h-title">DAILY PLANNER</div>
     <div class="h-date" id="headerDate"></div>
     
-    <!-- USER SELECTOR -->
-    <div class="user-bar">
-      <span class="user-label">Current User:</span>
-      <select class="user-select" id="userSelect" onchange="switchUser(this.value)">
-        <option value="user1">👤 User 1</option>
-        <option value="user2">👤 User 2</option>
-        <option value="user3">👤 User 3</option>
-        <option value="user4">👤 User 4</option>
-        <option value="user5">👤 User 5</option>
-      </select>
-      <span class="user-indicator" id="userIndicator">User 1</span>
-      <button class="edit-user-btn" onclick="openUserEdit()" title="Edit User Names">✏️</button>
-    </div>
+    <div class="header-content">
+      <!-- USER BAR -->
+      <div class="user-bar">
+        <span class="user-label">Current User:</span>
+        <select class="user-select" id="userSelect" onchange="switchUser(this.value)">
+          <option value="user1">👤 User 1</option>
+          <option value="user2">👤 User 2</option>
+          <option value="user3">👤 User 3</option>
+          <option value="user4">👤 User 4</option>
+          <option value="user5">👤 User 5</option>
+        </select>
+        <span class="user-indicator" id="userIndicator">User 1</span>
+        <button class="edit-user-btn" onclick="openUserEdit()" title="Edit User Names">✏️</button>
+      </div>
 
-    <div class="h-nav">
-      <button class="nav-btn" onclick="changeDate(-1)" title="Previous Day">◀</button>
-      <input type="date" id="datePicker" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;font-family:inherit;cursor:pointer;">
-      <button class="nav-btn" onclick="changeDate(1)" title="Next Day">▶</button>
-      <button class="nav-btn today-btn" onclick="goToday()">TODAY</button>
+      <div class="h-nav">
+        <button class="nav-btn" onclick="changeDate(-1)" title="Previous Day">◀</button>
+        <input type="date" id="datePicker" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;font-family:inherit;cursor:pointer;">
+        <button class="nav-btn" onclick="changeDate(1)" title="Next Day">▶</button>
+        <button class="nav-btn today-btn" onclick="goToday()">TODAY</button>
+      </div>
+      <div class="h-actions">
+        <button class="action-btn btn-save" onclick="manualSave()">💾 Save Plan</button>
+        <button class="action-btn btn-dir" onclick="openDirectory()">📁 Directory</button>
+        <button class="action-btn btn-clear" onclick="confirmClear()">🗑️ Clear Day</button>
+        <button class="action-btn btn-print" onclick="window.print()">🖨️ Print</button>
+      </div>
+      <div class="save-status" id="saveStatus"></div>
     </div>
-    <div class="h-actions">
-      <button class="action-btn btn-save" onclick="manualSave()">💾 Save Plan</button>
-      <button class="action-btn btn-dir" onclick="openDirectory()">📁 Directory</button>
-      <button class="action-btn btn-clear" onclick="confirmClear()">🗑️ Clear Day</button>
-      <button class="action-btn btn-print" onclick="window.print()">🖨️ Print</button>
-    </div>
-    <div class="save-status" id="saveStatus"></div>
+    
+    <!-- TOGGLE BUTTON -->
+    <div class="header-toggle" onclick="toggleHeader()" title="Collapse/Expand">▼</div>
   </div>
 
   <!-- MAIN GRID -->
@@ -288,21 +291,21 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
         <div class="sched-wrap" id="scheduleBox"></div>
       </div>
       
-      <!-- MEALS SECTION - BIG TEXT BOXES -->
+      <!-- MEALS SECTION - REDUCED SIZE -->
       <div class="section" style="margin-top:20px;">
         <div class="s-title pink">🍲 Meals</div>
         <div class="meals-grid">
           <div class="meal-card">
             <div class="meal-label">🌅 Breakfast</div>
-            <textarea class="meal-in" id="mealB" placeholder="What did you have for breakfast?&#10;• Items&#10;• Calories&#10;• Notes" rows="5"></textarea>
+            <textarea class="meal-in" id="mealB" placeholder="Menu items..." rows="3"></textarea>
           </div>
           <div class="meal-card">
             <div class="meal-label">☀️ Lunch</div>
-            <textarea class="meal-in" id="mealL" placeholder="What did you have for lunch?&#10;• Items&#10;• Calories&#10;• Notes" rows="5"></textarea>
+            <textarea class="meal-in" id="mealL" placeholder="Menu items..." rows="3"></textarea>
           </div>
           <div class="meal-card">
             <div class="meal-label">🌙 Dinner</div>
-            <textarea class="meal-in" id="mealD" placeholder="What did you have for dinner?&#10;• Items&#10;• Calories&#10;• Notes" rows="5"></textarea>
+            <textarea class="meal-in" id="mealD" placeholder="Menu items..." rows="3"></textarea>
           </div>
         </div>
       </div>
@@ -320,30 +323,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
       </div>
     </div>
 
-    <!-- RIGHT COL -->
+    <!-- RIGHT COL - REARRANGED -->
     <div>
+      <!-- MOVED: Health & Fitness (now first) -->
       <div class="section">
-        <div class="s-title">💼 Work To-Do</div>
-        <div class="list-area" id="workList"></div>
-        <button class="add-btn" onclick="addTask('workList','Work task...')">+ Add Task</button>
-      </div>
-      <div class="section" style="margin-top:20px;">
-        <div class="s-title pink">🏠 Personal To-Do</div>
-        <div class="list-area" id="persList"></div>
-        <button class="add-btn" onclick="addTask('persList','Personal task...')">+ Add Task</button>
-      </div>
-      <div class="section" style="margin-top:20px;">
-        <div class="s-title amber">📅 Appointments</div>
-        <div class="list-area" id="apptList"></div>
-        <button class="add-btn" onclick="addAppt()">+ Add Appointment</button>
-      </div>
-      <div class="section" style="margin-top:20px;">
-        <div class="s-title" style="border-color:var(--accent);">⭐ Rate Your Day</div>
-        <div class="rating-row"><span class="rating-label">📊 Productivity</span><div class="stars-wrap" id="starProd"></div></div>
-        <div class="rating-row"><span class="rating-label">😊 Mood</span><div class="stars-wrap" id="starMood"></div></div>
-        <div class="rating-row"><span class="rating-label">💪 Health</span><div class="stars-wrap" id="starHealth"></div></div>
-      </div>
-      <div class="section" style="margin-top:20px;background:#f0fdf4;">
         <div class="s-title green">🌿 Health & Fitness</div>
         <div class="health-row">
           <input type="checkbox" id="exCheck"><b>Morning Exercise</b>
@@ -354,9 +337,40 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
           <input type="time" class="health-time" id="medTime">
         </div>
       </div>
+
+      <!-- Work To-Do -->
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title">💼 Work To-Do</div>
+        <div class="list-area" id="workList"></div>
+        <button class="add-btn" onclick="addTask('workList','Work task...')">+ Add Task</button>
+      </div>
+
+      <!-- Personal To-Do -->
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title pink">🏠 Personal To-Do</div>
+        <div class="list-area" id="persList"></div>
+        <button class="add-btn" onclick="addTask('persList','Personal task...')">+ Add Task</button>
+      </div>
+
+      <!-- Appointments -->
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title amber">📅 Appointments</div>
+        <div class="list-area" id="apptList"></div>
+        <button class="add-btn" onclick="addAppt()">+ Add Appointment</button>
+      </div>
+
+      <!-- Notes -->
       <div class="section" style="margin-top:20px;">
         <div class="s-title">📝 Notes</div>
         <textarea class="notes-area" id="notesTa" placeholder="Daily notes..."></textarea>
+      </div>
+
+      <!-- MOVED: Rate Your Day (now last) -->
+      <div class="section" style="margin-top:20px;">
+        <div class="s-title" style="border-color:var(--accent);">⭐ Rate Your Day</div>
+        <div class="rating-row"><span class="rating-label">📊 Productivity</span><div class="stars-wrap" id="starProd"></div></div>
+        <div class="rating-row"><span class="rating-label">😊 Mood</span><div class="stars-wrap" id="starMood"></div></div>
+        <div class="rating-row"><span class="rating-label">💪 Health</span><div class="stars-wrap" id="starHealth"></div></div>
       </div>
     </div>
   </div>
@@ -370,9 +384,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
       <button class="modal-close" onclick="closeUserEdit()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="user-edit-grid" id="userEditGrid">
-        <!-- Generated by JS -->
-      </div>
+      <div class="user-edit-grid" id="userEditGrid"></div>
       <button class="add-btn" onclick="saveUserNames()" style="background:var(--success);color:#fff;border:none;">💾 Save Names</button>
     </div>
   </div>
@@ -420,9 +432,41 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172
 </div>
 
 <script>
-// ─── PARTICLES ───
+// ─── EMOJI PARTICLES ───
+const EMOJIS = ['⏰','🌿','💼','🏠','🍲','📅','📝','💰','⭐','📊','😊','💪','📚','📖','✏️','🎯','🎉','✨'];
 const pc=document.getElementById('particles');
-for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*120+40;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-delay:${Math.random()*20}s;animation-duration:${Math.random()*12+16}s;`;pc.appendChild(p);}
+for(let i=0;i<25;i++){
+  const p=document.createElement('div');
+  p.className='emoji-particle';
+  p.textContent=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+  const size=Math.random()*1.5+1.5;
+  const left=Math.random()*100;
+  const delay=Math.random()*15;
+  const duration=Math.random()*10+10;
+  p.style.cssText=`font-size:${size}rem;left:${left}%;animation-delay:${delay}s;animation-duration:${duration}s;`;
+  pc.appendChild(p);
+}
+
+// ─── COLLAPSIBLE HEADER ───
+let isHeaderCollapsed = localStorage.getItem('planner_header_collapsed') === 'true';
+
+function initHeader() {
+  const header = document.getElementById('mainHeader');
+  if(isHeaderCollapsed) {
+    header.classList.add('collapsed');
+  }
+}
+
+function toggleHeader() {
+  const header = document.getElementById('mainHeader');
+  isHeaderCollapsed = !isHeaderCollapsed;
+  localStorage.setItem('planner_header_collapsed', isHeaderCollapsed);
+  if(isHeaderCollapsed) {
+    header.classList.add('collapsed');
+  } else {
+    header.classList.remove('collapsed');
+  }
+}
 
 // ─── USER MANAGEMENT ───
 let currentUser = localStorage.getItem('planner_current_user') || 'user1';
@@ -864,6 +908,7 @@ function deleteFromDir(k){
 }
 
 // ─── INIT ───
+initHeader();
 initUser();
 loadDay();
 </script>
