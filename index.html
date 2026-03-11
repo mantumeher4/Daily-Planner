@@ -1,10 +1,470 @@
-<link rel="manifest" href="data:application/manifest+json,{
-  'name': 'Daily Planner',
-  'short_name': 'Planner',
-  'icons': [{'src': 'data:image/svg+xml;base64,...', 'sizes': '192x192'}],
-  'start_url': '.',
-  'display': 'standalone',
-  'theme_color': '#b03028',
-  'background_color': '#f9f5ef'
-}">
-<meta name="theme-color" content="#b03028">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Planner App</title>
+    <style>
+        :root {
+            --bg-color: #e0f2f7;
+            --paper-color: #ffffff;
+            --border-color: #d1d1d1;
+            --accent-color: #4a90e2;
+            --text-color: #333;
+            --secondary-text: #666;
+            --highlight-color: #fdf6e3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .planner-container {
+            background-color: var(--paper-color);
+            width: 100%;
+            max-width: 1000px;
+            min-height: 90vh;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            position: relative;
+        }
+
+        @media (max-width: 850px) {
+            .planner-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .date-section {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+
+        .day-circles {
+            display: flex;
+            gap: 5px;
+        }
+
+        .day-circle {
+            width: 25px;
+            height: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: 0.2s;
+        }
+
+        .day-circle.active {
+            background-color: var(--text-color);
+            color: white;
+        }
+
+        h2 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        input[type="text"], textarea {
+            border: none;
+            border-bottom: 1px solid #eee;
+            width: 100%;
+            padding: 4px;
+            font-family: inherit;
+            outline: none;
+            background: transparent;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-bottom-color: var(--accent-color);
+        }
+
+        .meal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .meal-box {
+            text-align: center;
+        }
+
+        .meal-box label {
+            font-size: 0.7rem;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .water-tracker {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .glass {
+            cursor: pointer;
+            opacity: 0.3;
+            transition: 0.2s;
+        }
+
+        .glass.filled {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .expense-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            padding-bottom: 5px;
+        }
+
+        .expense-table input {
+            font-size: 0.8rem;
+        }
+
+        .ratings {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stars, .faces, .hearts {
+            display: flex;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .icon-btn {
+            opacity: 0.3;
+            transition: 0.2s;
+        }
+
+        .icon-btn.selected {
+            opacity: 1;
+        }
+
+        .footer-controls {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-print { background-color: #eee; color: #333; }
+        .btn-clear { background-color: #ff8a8a; color: white; }
+
+        @media print {
+            .footer-controls { display: none; }
+            body { background: white; padding: 0; }
+            .planner-container { box-shadow: none; border: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="planner-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Daily Planner</h1>
+            <div class="date-section">
+                <div class="day-circles" id="dayCircles">
+                    <div class="day-circle" onclick="toggleActive(this)">M</div>
+                    <div class="day-circle" onclick="toggleActive(this)">T</div>
+                    <div class="day-circle" onclick="toggleActive(this)">W</div>
+                    <div class="day-circle" onclick="toggleActive(this)">T</div>
+                    <div class="day-circle" onclick="toggleActive(this)">F</div>
+                    <div class="day-circle" onclick="toggleActive(this)">S</div>
+                    <div class="day-circle" onclick="toggleActive(this)">S</div>
+                </div>
+                <input type="text" placeholder="Date: __/__/____" style="width: 100px;">
+            </div>
+        </header>
+
+        <!-- Left Column -->
+        <div class="col-left">
+            <section class="section">
+                <h2>Top Priorities</h2>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 1"></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 2"></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Priority 3"></div>
+            </section>
+
+            <section class="section">
+                <h2>Calls / Emails</h2>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Person/Topic"></div>
+            </section>
+
+            <section class="section">
+                <h2>Personal To-Do List</h2>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="Task..."></div>
+            </section>
+
+            <section class="section">
+                <h2>Health & Fitness</h2>
+                <textarea rows="4" placeholder="Exercise, steps, vitamins..."></textarea>
+            </section>
+
+            <section class="section">
+                <h2>Meal Planning</h2>
+                <div class="meal-grid">
+                    <div class="meal-box">
+                        <label>Breakfast</label>
+                        <input type="text" placeholder="...">
+                    </div>
+                    <div class="meal-box">
+                        <label>Lunch</label>
+                        <input type="text" placeholder="...">
+                    </div>
+                    <div class="meal-box">
+                        <label>Dinner</label>
+                        <input type="text" placeholder="...">
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Water Tracker</h2>
+                <div class="water-tracker" id="waterTracker">
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                    <span class="glass" onclick="toggleWater(this)">💧</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-right">
+            <section class="section">
+                <h2>To-Do List</h2>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+                <div class="row"><input type="checkbox"><input type="text" placeholder="..."></div>
+            </section>
+
+            <section class="section">
+                <h2>Daily Schedule</h2>
+                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">08:00</span> <input type="text"></div>
+                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">10:00</span> <input type="text"></div>
+                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">12:00</span> <input type="text"></div>
+                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">14:00</span> <input type="text"></div>
+                <div class="row" style="font-size: 0.8rem;"><span style="width: 40px;">16:00</span> <input type="text"></div>
+            </section>
+
+            <section class="section">
+                <h2>Expense Tracker</h2>
+                <table class="expense-table">
+                    <tr><th>Item</th><th style="width: 80px;">Amount</th></tr>
+                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
+                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
+                    <tr><td><input type="text"></td><td><input type="text"></td></tr>
+                    <tr><td style="text-align: right; font-weight: bold;">Total:</td><td><input type="text"></td></tr>
+                </table>
+            </section>
+
+            <section class="section">
+                <h2>Notes</h2>
+                <textarea rows="6" placeholder="Ideas, reminders, reflections..."></textarea>
+            </section>
+
+            <section class="section">
+                <h2>Rate Your Day</h2>
+                <div class="ratings">
+                    <div class="rating-item">
+                        <span>Productivity:</span>
+                        <div class="stars" id="ratingProductivity">
+                            <span class="icon-btn" onclick="rate(this)">⭐</span>
+                            <span class="icon-btn" onclick="rate(this)">⭐</span>
+                            <span class="icon-btn" onclick="rate(this)">⭐</span>
+                            <span class="icon-btn" onclick="rate(this)">⭐</span>
+                            <span class="icon-btn" onclick="rate(this)">⭐</span>
+                        </div>
+                    </div>
+                    <div class="rating-item">
+                        <span>Mood:</span>
+                        <div class="faces" id="ratingMood">
+                            <span class="icon-btn" onclick="rate(this, true)">😢</span>
+                            <span class="icon-btn" onclick="rate(this, true)">😐</span>
+                            <span class="icon-btn" onclick="rate(this, true)">🙂</span>
+                            <span class="icon-btn" onclick="rate(this, true)">😊</span>
+                            <span class="icon-btn" onclick="rate(this, true)">🤩</span>
+                        </div>
+                    </div>
+                    <div class="rating-item">
+                        <span>Health:</span>
+                        <div class="hearts" id="ratingHealth">
+                            <span class="icon-btn" onclick="rate(this)">❤️</span>
+                            <span class="icon-btn" onclick="rate(this)">❤️</span>
+                            <span class="icon-btn" onclick="rate(this)">❤️</span>
+                            <span class="icon-btn" onclick="rate(this)">❤️</span>
+                            <span class="icon-btn" onclick="rate(this)">❤️</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="footer-controls">
+            <button class="btn-print" onclick="window.print()">Print / Save PDF</button>
+            <button class="btn-clear" onclick="clearAll()">Clear All</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleActive(el) {
+            el.classList.toggle('active');
+        }
+
+        function toggleWater(el) {
+            el.classList.toggle('filled');
+        }
+
+        function rate(el, singleSelect = false) {
+            const parent = el.parentElement;
+            const children = Array.from(parent.children);
+            const index = children.indexOf(el);
+
+            if (singleSelect) {
+                children.forEach(child => child.classList.remove('selected'));
+                el.classList.add('selected');
+            } else {
+                // Star/Heart behavior: fill up to the clicked one
+                children.forEach((child, i) => {
+                    if (i <= index) {
+                        child.classList.add('selected');
+                    } else {
+                        child.classList.remove('selected');
+                    }
+                });
+            }
+        }
+
+        function clearAll() {
+            if (confirm("Are you sure you want to clear your daily plan?")) {
+                // Clear inputs
+                document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+                document.querySelectorAll('textarea').forEach(area => area.value = '');
+                document.querySelectorAll('input[type="checkbox"]').forEach(check => check.checked = false);
+                
+                // Reset visuals
+                document.querySelectorAll('.day-circle').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.glass').forEach(el => el.classList.remove('filled'));
+                document.querySelectorAll('.icon-btn').forEach(el => el.classList.remove('selected'));
+            }
+        }
+
+        // Set default day based on today
+        window.onload = () => {
+            const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            const todayIndex = new Date().getDay();
+            const dayCircles = document.querySelectorAll('.day-circle');
+            
+            // Note: the circles start at M (index 1 in standard, but we'll just match roughly)
+            // Adjusting index to match: M=0, T=1, W=2, T=3, F=4, S=5, Sun=6
+            let adjustedIndex = todayIndex - 1;
+            if (adjustedIndex === -1) adjustedIndex = 6;
+            
+            if(dayCircles[adjustedIndex]) {
+                dayCircles[adjustedIndex].classList.add('active');
+            }
+
+            const today = new Date().toLocaleDateString();
+            document.querySelector('input[placeholder="Date: __/__/____"]').value = today;
+        };
+    </script>
+</body>
+</html>
